@@ -12,15 +12,14 @@ class Stats
     @org = o
   end
 
-  def recent_repos(start_time)
+  def recently_updated_repos(start_time)
     start_time = Time.parse(start_time) if start_time.is_a? String
     repos = @client.organization_repositories(@org)
-    recent = []
+    recently_updated = []
     repos.each do |repo|
-      repo_updated = Time.parse(repo.updated_at)
-      recent << repo if repo_updated > start_time
+      recently_updated << repo if Time.parse(repo.updated_at) > start_time
     end
-    return recent
+    return recently_updated
   end
 
 end
@@ -34,7 +33,7 @@ end
 
 st = Stats.new(opts[:user], opts[:pass], opts[:org])
 
-repos = st.recent_repos(Chronic.parse('monday 0:00', :context => :past))
+repos = st.recently_updated_repos(Chronic.parse('monday 0:00', :context => :past))
 puts "Number of repositories updated since last monday: #{repos.length}"
 repos.each do |repo|
   puts repo.name
