@@ -35,7 +35,7 @@ end
 st = Stats.new(opts[:user], opts[:pass], opts[:org])
 
 repos = st.recent_repos(Chronic.parse('monday 0:00', :context => :past))
-puts "Number of repos #{repos.length}"
+puts "Number of repositories updated since last monday: #{repos.length}"
 repos.each do |repo|
   puts repo.name
 end
