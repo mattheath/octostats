@@ -28,8 +28,8 @@ class Stats
     loop do
       issues = @client.list_issues(repo_name, options = {:sort => "updated", :state => "closed", :page => i})
       issues.each do | issue |
-        return closed_issues if Time.parse(issue.updated_at) < start_time
-        closed_issues << issue if Time.parse(issue.updated_at) < end_time
+        return closed_issues if Time.parse(issue.closed_at) < start_time
+        closed_issues << issue if Time.parse(issue.closed_at) < end_time
       end
       i += 1
     end
