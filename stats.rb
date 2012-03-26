@@ -22,15 +22,44 @@ class Stats
     return recently_updated
   end
 
+  def get_opened_issues(repo_name, start_time, end_time)
+    open_issues = []
+
+    # Get issues which are open, and were opened during the time period
+    i = 1
+    loop do
+      issues = @client.list_issues(repo_name, options = {:sort => "updated", :state => "open", :page => i})
+      #puts "#{i} #{issues.length}"
+      issues.each do | issue |
+        open_issues << issue if Time.parse(issue.created_at) > start_time and Time.parse(issue.created_at) < end_time
+      end
+      break if issues.length == 0
+      i += 1
+    end
+
+    # Get issues which are closed, but which were opened during the time period
+    i = 1
+    loop do
+      issues = @client.list_issues(repo_name, options = {:sort => "updated", :state => "closed", :page => i})
+      #puts "#{i} #{issues.length}"
+      issues.each do | issue |
+        open_issues << issue if Time.parse(issue.created_at) > start_time and Time.parse(issue.created_at) < end_time
+      end
+      return open_issues if issues.length == 0
+      i += 1
+    end
+  end
+
   def get_closed_issues(repo_name, start_time, end_time)
     i = 1
     closed_issues = []
     loop do
       issues = @client.list_issues(repo_name, options = {:sort => "updated", :state => "closed", :page => i})
+      #puts "#{i} #{issues.length}"
       issues.each do | issue |
-        return closed_issues if Time.parse(issue.closed_at) < start_time
-        closed_issues << issue if Time.parse(issue.closed_at) < end_time
+        closed_issues << issue if Time.parse(issue.closed_at) > start_time and Time.parse(issue.closed_at) < end_time
       end
+      return closed_issues if issues.length == 0
       i += 1
     end
   end
@@ -52,7 +81,20 @@ puts end_time = Chronic.parse('sunday 23:59', :context => :past)
 repo_name = ""
 
 is = st.get_closed_issues(repo_name, start_time, end_time)
-puts is.length
+is.each do |i|
+  puts "#{i.number} #{i.title}"
+end
+puts "#{is.length} closed issues"
+puts ""
+
+is = st.get_opened_issues(repo_name, start_time, end_time)
+is.each do |i|
+  puts "#{i.number} #{i.title}"
+end
+puts "#{is.length} opened issues"
+puts ""
+
+
 
 abort("Finished")
 
