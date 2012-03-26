@@ -22,6 +22,19 @@ class Stats
     return recently_updated
   end
 
+  def get_closed_issues(repo_name, start_time)
+    i = 1
+    closed_issues = []
+    loop do
+      issues = @client.list_issues(repo_name, options = {:sort => "updated", :state => "closed", :page => i})
+      issues.each do | issue |
+        return closed_issues if Time.parse(issue.updated_at) < start_time
+        closed_issues << issue
+      end
+      i += 1
+    end
+  end
+
 end
 
 
@@ -32,9 +45,17 @@ opts = Trollop::options do
 end
 
 st = Stats.new(opts[:user], opts[:pass], opts[:org])
+start_time = Chronic.parse('monday 0:00', :context => :past)
 
-repos = st.recently_updated_repos(Chronic.parse('monday 0:00', :context => :past))
+repo_name = ""
+
+is = st.get_closed_issues(repo_name, start_time)
+puts is.length
+
+abort("Finished")
+
+repos = st.recently_updated_repos(start_time)
 puts "Number of repositories updated since last monday: #{repos.length}"
 repos.each do |repo|
-  puts repo.name
+  puts "#{repo.name} - #{repo.updated_at}"
 end
