@@ -26,9 +26,9 @@ end
 
 
 opts = Trollop::options do
-  opt :user, "GitHub username", :type => String, :short => "-u"      # string -u
-  opt :pass, "GitHub password", :type => String, :short => "-p"      # string -p
-  opt :org, "GitHub organization", :type => String, :short => "-o"   # string -o
+  opt :user, "GitHub username", :type => String, :short => "-u"
+  opt :pass, "GitHub password", :type => String, :short => "-p"
+  opt :org, "GitHub organization", :type => String, :short => "-o"
 end
 
 st = Stats.new(opts[:user], opts[:pass], opts[:org])
